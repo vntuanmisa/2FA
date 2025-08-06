@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ luồng 2FA - Thiết kế chi tiết</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .node {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin: 8px;
+            min-width: 200px;
+        }
+        
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.15);
+        }
+        
+        .node-start {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            font-weight: 600;
+        }
+        
+        .node-decision {
+            border-color: #8b5cf6;
+            background: #f3f4f6;
+            border-style: dashed;
+            border-width: 3px;
+            position: relative;
+            font-weight: 600;
+        }
+        
+        .node-process {
+            border-color: #6b7280;
+            background: white;
+        }
+        
+        .node-success {
+            border-color: #10b981;
+            background: #ecfdf5;
+            font-weight: 600;
+        }
+        
+        .node-error {
+            border-color: #ef4444;
+            background: #fef2f2;
+            font-weight: 600;
+        }
+        
+        .node-sub {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            font-size: 0.9rem;
+            padding: 12px 16px;
+            min-width: 160px;
+        }
+
+        .node-sub-small {
+            min-width: initial;
+            padding: 6px 10px;
+            font-size: 11px;
+            margin: 4px;
+            border-radius: 8px;
+        }
+        
+        .arrow {
+            font-size: 1.5rem;
+            color: #6b7280;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .arrow-success { color: #10b981; }
+        .arrow-error { color: #ef4444; }
+        
+        .branch-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .branch {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+            flex: 1;
+        }
+        
+        .branch-2fa-on {
+            border-left: 6px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, white 50%);
+        }
+        
+        .branch-2fa-off {
+            border-left: 6px solid #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, white 50%);
+        }
+        
+        .branch-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 12px 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .title-on {
+            background: #10b981;
+            color: white;
+        }
+        
+        .title-off {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .sub-branch {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        
+        .sub-branch-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-align: center;
+            background: #e5e7eb;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .flow-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 24px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #3b82f6;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gate-number {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            line-height: 32px;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+        
+        .swimlane-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .swimlane {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            border-top: 4px solid #3b82f6;
+        }
+        
+        .swimlane-title {
+            font-weight: 700;
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: transparent;
+            color: #64748b;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        
+        .note-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .note-title {
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                🔐 Sơ Đồ Luồng Tích Hợp Bảo Mật 2FA
+            </h1>
+            <p class="text-xl text-gray-600 font-medium">
+                Mô hình các kịch bản từ lúc đăng nhập
+            </p>
+        </div>
+
+        <!-- Main Authentication Flow -->
+        <div class="flow-section">
+            <div class="section-title">🚪 LUỒNG ĐĂNG NHẬP CHÍNH</div>
+            
+            <div class="flex flex-col items-center">
+                <!-- Start -->
+                <div class="node node-start">
+                    👤 Người dùng nhập Tên đăng nhập & Mật khẩu
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Gate 1 -->
+                <div class="node node-decision">
+                    <span class="gate-number">1</span>
+                    🚦 CỔNG 1: Xác thực thông tin đăng nhập?
+                </div>
+                
+                <!-- Gate 1 Branches -->
+                <div class="branch-container w-full">
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="text-sm font-semibold text-red-600 mb-2">❌ Nhánh 1.1: Thông tin SAI</div>
+                        <div class="arrow arrow-error">↓</div>
+                        <div class="node node-error">
+                            ⚠️ Hiển thị thông báo lỗi<br/>
+                            <small class="text-gray-600">Yêu cầu nhập lại thông tin</small><br/>
+                            🔚 <strong>KẾT THÚC</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="text-sm font-semibold text-green-600 mb-2">✅ Nhánh 1.2: Thông tin ĐÚNG</div>
+                        <div class="arrow arrow-success">↓</div>
+                        <!-- Gate 2 - MOVED HERE -->
+                        <div class="node node-decision">
+                            <span class="gate-number">2</span>
+                            🔍 CỔNG 2: Kiểm tra trạng thái 2FA của tài khoản?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2FA Enabled Branch -->
+        <div class="flow-section">
+            <div class="branch branch-2fa-on">
+                <div class="branch-title title-on">
+                    🟢 LUỒNG A: TÀI KHOẢN ĐÃ BẬT 2FA
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="node node-process">
+                        📱 Hiển thị màn hình yêu cầu nhập mã 2FA<br/>
+                        <small class="text-gray-600">Hiển thị các phương thức đã thiết lập</small>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-decision">
+                        <span class="gate-number">A</span>
+                        🤔 Người dùng chọn hành động gì?
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-6">
+                        <!-- Sub-branch A1 -->
+                        <div class="sub-branch">
+                            <div class="sub-branch-title">📝 Nhánh A.1: Nhập mã xác thực</div>
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="node node-sub">
+                                    <span class="step-number">1</span>
+                                    Người dùng nhập mã OTP/TOTP
+                                </div>
+                                <div class="arrow">↓</div>
+                                <div class="node node-decision node-sub">
+                                    🔍 Kiểm tra mã hợp lệ?
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 w-full">
+                                    <div class="text-center">
+                                        <div class="text-xs text-red-600 font-semibold mb-2">❌ KHÔNG hợp lệ</div>
+                                        <div class="node node-error node-sub">
+                                            ⚠️ Hiển thị lỗi<br/>
+                                            <small>Yêu cầu nhập lại</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs text-green-600 font-semibold mb-2">✅ HỢP LỆ</div>
+                                        <div class="node node-success node-sub">
+                                            🎉 Đăng nhập<br/>vào ỨNG DỤNG
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-branch A2 -->
+                        <div class="sub-branch">
+                            <div class="sub-branch-title">🔄 Nhánh A.2: Thử cách khác</div>
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="node node-sub">
+                                    <span class="step-number">1</span>
+                                    Hiển thị danh sách các phương thức đã thiết lập
+                                </div>
+                                <div class="arrow">↓</div>
+                                <div class="node node-sub">
+                                    <span class="step-number">2</span>
+                                    Người dùng chọn phương thức khác<br/>
+                                    <small class="text-gray-600">(Email, SMS, App Authenticator)</small>
+                                </div>
+                                <div class="arrow">↓</div>
+                                <div class="node node-process node-sub">
+                                    🔄 Quay lại <strong>Nhánh A.1</strong><br/>
+                                    <small class="text-blue-600">Nhập mã từ phương thức mới</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-branch A3 -->
+                        <div class="sub-branch">
+                            <div class="sub-branch-title">➕ Nhánh A.3: Thêm phương thức mới</div>
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="node node-sub">
+                                    <span class="step-number">1</span>
+                                    Chuyển sang luồng thiết lập phương thức mới
+                                </div>
+                                <div class="arrow">↓</div>
+                                <div class="node node-sub">
+                                    <span class="step-number">2</span>
+                                    Hoàn tất thiết lập<br/>
+                                    <small class="text-gray-600">(Xác thực phương thức mới)</small>
+                                </div>
+                                <div class="arrow">↓</div>
+                                <div class="node node-success node-sub">
+                                    ✅ Thiết lập thành công<br/>
+                                    🎉 Đăng nhập vào ỨNG DỤNG
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2FA Disabled Branch -->
+        <div class="flow-section">
+            <div class="branch branch-2fa-off">
+                <div class="branch-title title-off">
+                    🟠 LUỒNG B: TÀI KHOẢN CHƯA BẬT 2FA
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="node node-process">
+                        💬 Hiển thị Pop-up yêu cầu thiết lập 2FA<br/>
+                        <small class="text-gray-600">Thông báo về tầm quan trọng của bảo mật</small>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-decision">
+                        <span class="gate-number">B1</span>
+                        🤔 CỔNG B1: Người dùng lựa chọn như thế nào?
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-6">
+                        <!-- Sub-branch B1.1 -->
+                        <div class="sub-branch">
+                            <div class="sub-branch-title">⏭️ Nhánh B.1.1: Bỏ qua thiết lập</div>
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="node node-decision node-sub">
+                                    🔍 Kiểm tra số lần bỏ qua còn lại?<br/>
+                                    <small class="text-gray-600">(Hệ thống giới hạn số lần)</small>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 w-full">
+                                    <div class="text-center">
+                                        <div class="text-xs text-red-600 font-semibold mb-2">❌ HẾT lượt bỏ qua</div>
+                                        <div class="node node-error node-sub">
+                                            🚫 Bắt buộc phải thiết lập 2FA<br/>
+                                            <small>Không thể tiếp tục</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs text-green-600 font-semibold mb-2">✅ CÒN lượt bỏ qua</div>
+                                        <div class="node node-success node-sub">
+                                            ⚠️ Giảm 1 lượt bỏ qua<br/>
+                                            🎉 Vào ỨNG DỤNG
+                                        </div>
+                                        <div class="arrow text-xs">↓</div>
+                                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
+                                            <div class="text-xs font-semibold text-yellow-800 mb-2">⚠️ CẢNH BÁO TRÊN GIAO DIỆN:</div>
+                                            <div class="space-y-2">
+                                                <div class="node node-sub text-xs" style="background: #fefce8; border-color: #facc15;">
+                                                    <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">1</span>
+                                                    Hiển thị cảnh báo trên Avatar
+                                                </div>
+                                                <div class="arrow text-xs">↓</div>
+                                                <div class="node node-sub text-xs" style="background: #fefce8; border-color: #facc15;">
+                                                    <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">2</span>
+                                                    Người dùng click menu Avatar
+                                                </div>
+                                                <div class="arrow text-xs">↓</div>
+                                                <div class="node node-sub text-xs" style="background: #fefce8; border-color: #facc15;">
+                                                    <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">3</span>
+                                                    Cảnh báo tại "Thiết lập bảo mật"
+                                                </div>
+                                                <div class="arrow text-xs">↓</div>
+                                                <div class="node node-process text-xs" style="background: #dbeafe; border-color: #3b82f6;">
+                                                    🎯 Click → Chuyển đến trang cài đặt 2FA
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-branch B1.2 -->
+                        <div class="sub-branch">
+                            <div class="sub-branch-title">⚙️ Nhánh B.1.2: Chọn thiết lập 2FA ngay</div>
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="node node-decision node-sub">
+                                    <span class="gate-number">B2</span>
+                                    🔍 CỔNG B2: Chọn phương thức 2FA nào?
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                                    <!-- UPDATED Email/Phone -->
+                                    <div class="bg-blue-50 p-3 rounded-lg flex flex-col">
+                                        <div class="text-xs font-semibold text-center text-blue-700 mb-2">📧 Email / 📱 Số điện thoại</div>
+                                        <div class="flex flex-col items-center space-y-2">
+                                            <div class="node node-sub text-xs">
+                                                🔍 Kiểm tra thông tin có sẵn?
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2 w-full">
+                                                <!-- CHƯA CÓ THÔNG TIN -->
+                                                <div class="text-center">
+                                                    <div style="font-size: 10px;" class="text-red-600 font-semibold mb-1">CHƯA có</div>
+                                                    <div class="node node-sub node-sub-small">
+                                                        ➕ Yêu cầu bổ sung
+                                                    </div>
+                                                     <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                     <div class="node node-sub node-sub-small">
+                                                        📨 Gửi OTP xác thực
+                                                    </div>
+                                                    <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                    <div class="node node-success node-sub-small">
+                                                        ✅ Bật 2FA & Vào App
+                                                    </div>
+                                                </div>
+                                                <!-- ĐÃ CÓ THÔNG TIN -->
+                                                <div class="text-center">
+                                                    <div style="font-size: 10px;" class="text-green-600 font-semibold mb-1">ĐÃ có</div>
+                                                    <div class="node node-sub node-sub-small">
+                                                        📨 Gửi OTP & Hiển thị màn hình nhập
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- LUỒNG XỬ LÝ KHI ĐÃ CÓ THÔNG TIN -->
+                                            <div class="w-full mt-2 pt-2 border-t border-dashed border-blue-300">
+                                                <div class="node node-decision node-sub-small w-full">
+                                                    🤔 Người dùng làm gì tiếp theo?
+                                                </div>
+                                                <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                <div class="w-full space-y-3">
+                                                    <!-- Nhánh: Nhập OTP -->
+                                                    <div class="bg-white p-2 rounded-md border border-gray-200">
+                                                        <div class="font-bold text-blue-800 text-center" style="font-size: 10px;">Nhánh 1: Nhập OTP</div>
+                                                        <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                        <div class="node node-decision node-sub-small">Xác thực OTP?</div>
+                                                        <div class="grid grid-cols-2 gap-1 w-full mt-1">
+                                                            <div class="text-center">
+                                                                <div style="font-size: 10px;" class="text-red-600 font-semibold">SAI</div>
+                                                                <div class="node node-error node-sub-small">⚠️ Báo lỗi</div>
+                                                            </div>
+                                                            <div class="text-center">
+                                                                <div style="font-size: 10px;" class="text-green-600 font-semibold">ĐÚNG</div>
+                                                                <div class="node node-success node-sub-small">✅ Vào App</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Nhánh: Đổi thông tin -->
+                                                    <div class="bg-white p-2 rounded-md border border-gray-200">
+                                                        <div class="font-bold text-yellow-800 text-center" style="font-size: 10px;">Nhánh 2: Đổi thông tin</div>
+                                                        <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                        <div class="node node-process node-sub-small">Hiển thị form đổi thông tin</div>
+                                                        <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                        <div class="node node-decision node-sub-small">Hành động?</div>
+                                                        <div class="grid grid-cols-2 gap-1 w-full mt-1">
+                                                            <div class="text-center">
+                                                                <div style="font-size: 10px;" class="text-gray-600 font-semibold">Cancel</div>
+                                                                <div class="node node-sub-small"> Hủy</div>
+                                                            </div>
+                                                            <div class="text-center">
+                                                                <div style="font-size: 10px;" class="text-blue-600 font-semibold">OK</div>
+                                                                <div class="node node-process node-sub-small">Gửi OTP mới</div>
+                                                                <div class="arrow text-xs" style="margin: 4px 0;">↓</div>
+                                                                <div class="node node-success node-sub-small">✅ Cập nhật & Vào App</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Google Authenticator -->
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <div class="text-xs font-semibold text-center text-green-700 mb-2">🔐 Google Authenticator</div>
+                                        <div class="flex flex-col items-center space-y-2">
+                                            <div class="node node-sub text-xs">
+                                                <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">1</span>
+                                                Hiển thị QR Code
+                                            </div>
+                                            <div class="arrow text-xs">↓</div>
+                                            <div class="node node-sub text-xs">
+                                                <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">2</span>
+                                                Xác thực mã TOTP
+                                            </div>
+                                            <div class="arrow text-xs">↓</div>
+                                            <div class="node node-sub text-xs">
+                                                <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">3</span>
+                                                Kiểm tra ngầm Email/SĐT làm backup
+                                            </div>
+                                            <div class="arrow text-xs">↓</div>
+                                            <div class="node node-sub text-xs">
+                                                <span class="step-number" style="width: 16px; height: 16px; font-size: 10px;">4</span>
+                                                Kích hoạt phương thức dự phòng
+                                            </div>
+                                            <div class="arrow text-xs">↓</div>
+                                            <div class="node node-success node-sub text-xs">
+                                                ✅ Bật 2FA thành công<br/>
+                                                🎉 Vào ỨNG DỤNG
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Integration -->
+        <div class="flow-section">
+            <div class="section-title">🔧 SƠ ĐỒ TƯƠNG TÁC KỸ THUẬT</div>
+            
+            <div class="tab-container">
+                <button class="tab-button active" onclick="showTab('sso')">
+                    🔗 Tích hợp theo SSO (Single Sign-On)
+                </button>
+                <button class="tab-button" onclick="showTab('api')">
+                    🌐 Tích hợp theo API (REST API)
+                </button>
+            </div>
+
+            <!-- SSO Integration -->
+            <div id="sso-content" class="tab-content">
+                <div class="note-box mb-6">
+                    <div class="note-title">💡 Mô hình SSO:</div>
+                    <p>ỨNG DỤNG ủy thác hoàn toàn việc xác thực cho MISA ID, chỉ nhận kết quả cuối cùng.</p>
+                </div>
+                
+                <div class="swimlane-container">
+                    <div class="swimlane">
+                        <div class="swimlane-title">👤 NGƯỜI DÙNG</div>
+                        <div class="space-y-4">
+                            <div class="node node-start node-sub">
+                                <span class="step-number">1</span>
+                                Bắt đầu đăng nhập vào ỨNG DỤNG
+                            </div>
+                            <div style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-gray-400">⏳ Chờ xử lý...</div>
+                            </div>
+                            <div class="node node-success node-sub">
+                                <span class="step-number">6</span>
+                                Đăng nhập thành công vào ỨNG DỤNG<br/>
+                                <small class="text-green-600">Có session hợp lệ</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="swimlane">
+                        <div class="swimlane-title">🏢 ỨNG DỤNG</div>
+                        <div class="space-y-4">
+                            <div class="node node-process node-sub">
+                                <span class="step-number">2</span>
+                                Chuyển hướng người dùng đến MISA ID<br/>
+                                <small class="text-gray-600">Redirect với return_url</small>
+                            </div>
+                            <div style="height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-gray-400">⏳ Chờ callback...</div>
+                            </div>
+                            <div class="node node-process node-sub">
+                                <span class="step-number">5</span>
+                                Nhận URL callback từ MISA ID<br/>
+                                <small class="text-blue-600">Kiểm tra token, user_info & tạo session</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="swimlane">
+                        <div class="swimlane-title">🔐 MISA ID UI</div>
+                        <div class="space-y-4">
+                            <div class="node node-decision node-sub">
+                                <span class="step-number">3</span>
+                                Xử lý toàn bộ logic 2FA<br/>
+                                <small class="text-purple-600">Thiết lập hoặc Xác thực</small>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="node node-success node-sub">
+                                <span class="step-number">4</span>
+                                Trả về URL xác thực<br/>
+                                <small class="text-green-600">Kèm theo access token & user_info</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="note-box">
+                    <div class="note-title">🔍 Chi tiết bước 3 - Xử lý 2FA tại MISA ID:</div>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Nếu đã bật 2FA:</strong> Hiển thị form nhập mã, xác thực, trả kết quả</li>
+                        <li><strong>Nếu chưa bật 2FA:</strong> Hiển thị popup thiết lập, hướng dẫn cài đặt, xác thực thiết lập</li>
+                        <li><strong>Tất cả giao diện</strong> đều do MISA ID UI quản lý, ỨNG DỤNG không can thiệp</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- API Integration -->
+            <div id="api-content" class="tab-content hidden">
+                <div class="note-box mb-6">
+                    <div class="note-title">💡 Mô hình API:</div>
+                    <p>ỨNG DỤNG tích hợp trực tiếp với MISA ID API và nhúng UI components khi cần thiết.</p>
+                </div>
+                
+                <div class="swimlane-container mb-6">
+                    <div class="swimlane">
+                        <div class="swimlane-title">👤 NGƯỜI DÙNG</div>
+                        <div class="space-y-3">
+                            <div class="node node-start node-sub">
+                                <span class="step-number">1</span>
+                                Nhập thông tin đăng nhập<br/>
+                                <small class="text-gray-600">Username + Password</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="swimlane">
+                        <div class="swimlane-title">🏢 ỨNG DỤNG</div>
+                        <div class="space-y-3">
+                            <div class="node node-process node-sub">
+                                <span class="step-number">2</span>
+                                Gọi API đăng nhập<br/>
+                                <code class="text-xs bg-gray-100 px-2 py-1 rounded">POST /api/auth/login</code>
+                            </div>
+                            <div class="arrow text-sm">↓</div>
+                            <div class="node node-decision node-sub">
+                                <span class="step-number">4</span>
+                                Nhận response & rẽ nhánh theo trạng thái 2FA
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="swimlane">
+                        <div class="swimlane-title">🔗 MISA ID API</div>
+                        <div class="space-y-3">
+                            <div class="node node-process node-sub">
+                                <span class="step-number">3</span>
+                                Xác thực & trả về trạng thái 2FA<br/>
+                                <small class="text-blue-600">enabled/disabled + user_info</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="swimlane">
+                        <div class="swimlane-title">🎨 MISA ID UI</div>
+                        <div class="space-y-3">
+                            <div class="node node-sub" style="background: #f3f4f6; border-color: #d1d5db;">
+                                💤 Standby<br/>
+                                <small class="text-gray-500">Chờ được gọi khi cần</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Response Branches -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Branch A: 2FA Enabled -->
+                    <div class="border-t-4 border-green-500 bg-green-50 p-6 rounded-lg">
+                        <div class="text-center font-bold text-green-700 mb-4 text-lg">
+                            🟢 NHÁNH A: TÀI KHOẢN ĐÃ BẬT 2FA
+                        </div>
+                        
+                        <div class="swimlane-container">
+                            <div class="swimlane" style="border-top-color: #10b981;">
+                                <div class="swimlane-title" style="color: #10b981;">👤 NGƯỜI DÙNG</div>
+                                <div class="space-y-3">
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">5a</span>
+                                        Nhập mã OTP/TOTP<br/>
+                                        <small class="text-gray-600">Từ phương thức đã chọn</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="swimlane" style="border-top-color: #10b981;">
+                                <div class="swimlane-title" style="color: #10b981;">🏢 ỨNG DỤNG</div>
+                                <div class="space-y-2">
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">4a</span>
+                                        Hiển thị form nhập mã 2FA<br/>
+                                        <small class="text-blue-600">UI do ỨNG DỤNG quản lý</small>
+                                    </div>
+                                    <div class="arrow text-sm">↓</div>
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">6a</span>
+                                        Gọi API xác thực mã<br/>
+                                        <code class="text-xs bg-gray-100 px-2 py-1 rounded">POST /api/auth/verify-2fa</code>
+                                    </div>
+                                    <div class="arrow text-sm">↓</div>
+                                    <div class="node node-success node-sub">
+                                        <span class="step-number">7a</span>
+                                        Nhận token, user_info & hoàn tất đăng nhập
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="note-box mt-4" style="background: #dcfce7; border-color: #16a34a;">
+                            <div class="note-title" style="color: #166534;">📋 API Response mẫu (2FA enabled):</div>
+                            <pre class="text-xs bg-white p-2 rounded mt-2 overflow-x-auto"><code>{
+  "status": "2fa_required",
+  "user_id": "123456",
+  "available_methods": ["email", "sms", "totp"],
+  "default_method": "email"
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Branch B: 2FA Disabled -->
+                    <div class="border-t-4 border-orange-500 bg-orange-50 p-6 rounded-lg">
+                        <div class="text-center font-bold text-orange-700 mb-4 text-lg">
+                            🟠 NHÁNH B: TÀI KHOẢN CHƯA BẬT 2FA
+                        </div>
+                        
+                        <div class="swimlane-container">
+                            <div class="swimlane" style="border-top-color: #f59e0b;">
+                                <div class="swimlane-title" style="color: #f59e0b;">🏢 ỨNG DỤNG</div>
+                                <div class="space-y-3">
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">4b</span>
+                                        Hiển thị Pop-up, nhúng MISA ID UI vào iframe bằng <code class="text-xs bg-gray-200 px-1 rounded">setup_url</code>
+                                    </div>
+                                    <div class="arrow text-sm">↓</div>
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">5b</span>
+                                        Lắng nghe sự kiện <code class="text-xs bg-gray-200 px-1 rounded">PostMessage</code>
+                                    </div>
+                                    <div class="arrow text-sm">↓</div>
+                                     <div class="node node-success node-sub">
+                                        <span class="step-number">7b</span>
+                                        Nhận sự kiện, đóng pop-up và hoàn tất đăng nhập
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="swimlane" style="border-top-color: #f59e0b;">
+                                <div class="swimlane-title" style="color: #f59e0b;">🎨 MISA ID UI (trong iframe)</div>
+                                <div class="space-y-3">
+                                    <div class="node node-process node-sub">
+                                        <span class="step-number">6b</span>
+                                        Xử lý logic thiết lập 2FA và gửi <code class="text-xs bg-gray-200 px-1 rounded">PostMessage</code> khi xong
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="note-box mt-4" style="background: #fef3c7; border-color: #f59e0b;">
+                            <div class="note-title" style="color: #92400e;">📋 API Response mẫu (2FA disabled):</div>
+                            <pre class="text-xs bg-white p-2 rounded mt-2 overflow-x-auto"><code>{
+  "status": "2fa_setup_required",
+  "user_id": "123456",
+  "skip_count_remaining": 2,
+  "setup_url": "https://id.misa.vn/setup/2fa?token=..."
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PostMessage Events -->
+                <div class="note-box mt-6">
+                    <div class="note-title">📡 PostMessage Events (Communication giữa ỨNG DỤNG và MISAID UI):</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-white p-4 rounded-lg border">
+                            <h4 class="font-semibold text-green-600 mb-2">✅ Thiết lập thành công:</h4>
+                            <pre class="text-xs bg-gray-100 p-2 rounded"><code>{
+  "type": "2fa_setup_complete",
+  "data": {
+    "user_id": "123456",
+    "user_info": { "name": "Nguyen Van A" },
+    "methods": ["email", "totp"],
+    "access_token": "..."
+  }
+}</code></pre>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border">
+                            <h4 class="font-semibold text-red-600 mb-2">❌ Hủy thiết lập:</h4>
+                            <pre class="text-xs bg-gray-100 p-2 rounded"><code>{
+  "type": "2fa_setup_cancelled",
+  "data": {
+    "user_id": "123456",
+    "user_info": { "name": "Nguyen Van A" },
+    "reason": "user_cancelled"
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="flow-section">
+            <div class="section-title">📊 TÓM TẮT CÁC LUỒNG</div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Main Flow Summary -->
+                <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                    <h3 class="font-bold text-blue-800 mb-3">🚪 LUỒNG CHÍNH</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>✅ Xác thực username/password</li>
+                        <li>🔍 Kiểm tra trạng thái 2FA</li>
+                        <li>🔀 Rẽ nhánh theo kết quả</li>
+                    </ul>
+                </div>
+                
+                <!-- 2FA Enabled Summary -->
+                <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                    <h3 class="font-bold text-green-800 mb-3">🟢 2FA ĐÃ BẬT</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>📱 Nhập mã xác thực</li>
+                        <li>🔄 Thử phương thức khác</li>
+                        <li>➕ Thêm phương thức mới</li>
+                        <li>✅ Đăng nhập thành công</li>
+                    </ul>
+                </div>
+                
+                <!-- 2FA Disabled Summary -->
+                <div class="bg-orange-50 p-6 rounded-lg border-l-4 border-orange-500">
+                    <h3 class="font-bold text-orange-800 mb-3">🟠 2FA CHƯA BẬT</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>💬 Hiển thị popup yêu cầu</li>
+                        <li>⏭️ Cho phép bỏ qua (có giới hạn)</li>
+                        <li>⚙️ Thiết lập ngay lập tức</li>
+                        <li>📧 Email/SMS hoặc 📱 Authenticator</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Technical Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-500">
+                    <h3 class="font-bold text-purple-800 mb-3">🔗 TÍCH HỢP SSO</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>🏃‍♂️ ỨNG DỤNG chuyển hướng đến MISA ID</li>
+                        <li>🔐 MISA ID xử lý toàn bộ logic 2FA</li>
+                        <li>↩️ Callback về ỨNG DỤNG với kết quả</li>
+                        <li>🎯 Đơn giản cho developer ỨNG DỤNG</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-indigo-50 p-6 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="font-bold text-indigo-800 mb-3">🌐 TÍCH HỢP API</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>📡 ỨNG DỤNG gọi trực tiếp MISA ID API</li>
+                        <li>🎨 Nhúng MISA ID UI khi cần thiết</li>
+                        <li>📬 Sử dụng PostMessage communication</li>
+                        <li>🔧 Linh hoạt hơn cho customization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected content and activate button
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+        
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Apply animations to all nodes
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.node, .branch, .swimlane, .flow-step');
+            
+            animatedElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = `all 0.25s ease ${index * 0.02}s`;
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>
