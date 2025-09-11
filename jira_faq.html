@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>📋 FAQ - Quy trình Xử lý Yêu cầu trên JIRA</title>
+<style>
+:root {
+--brand-primary: #0052CC;
+--brand-secondary: #0747A6;
+--text-primary: #172B4D;
+--text-secondary: #5E6C84;
+--bg-main: #F4F5F7;
+--bg-panel: #FFFFFF;
+--border-color: #DFE1E6;
+--note-bg: #EAE6FF;
+--note-border: #6554C0;
+--kpi-bg: #DEEBFF;
+--kpi-text: #0747A6;
+--kpi-border: #B3D4FF;
+--success-bg: #E3FCEF;
+--error-bg: #FFEBE6;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+background-color: var(--bg-main);
+color: var(--text-primary);
+line-height: 1.6;
+margin: 0;
+padding: 24px;
+}
+.container {
+max-width: 960px;
+margin: 0 auto;
+background-color: var(--bg-panel);
+border: 1px solid var(--border-color);
+border-radius: 8px;
+padding: 24px 32px;
+box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+h1, h2, h3 {
+color: var(--brand-secondary);
+margin: 0 0 12px 0;
+}
+h1 {
+font-size: 28px;
+text-align: center;
+border-bottom: 2px solid var(--brand-primary);
+padding-bottom: 16px;
+margin-bottom: 24px;
+}
+h2 {
+font-size: 22px;
+border-bottom: 1px solid var(--border-color);
+padding-bottom: 8px;
+margin-top: 32px;
+}
+h3 {
+font-size: 18px;
+color: var(--brand-primary);
+margin-top: 24px;
+}
+p { margin: 8px 0; color: var(--text-secondary); }
+ul, ol { margin: 8px 0 16px 20px; padding-left: 16px; }
+li { margin-bottom: 8px; }
+code {
+background-color: #F4F5F7;
+padding: 3px 6px;
+border-radius: 4px;
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+color: #D9291C;
+font-size: 0.9em;
+}
+.kpi-box {
+background-color: var(--kpi-bg);
+border: 1px solid var(--kpi-border);
+color: var(--kpi-text);
+padding: 12px 16px;
+margin: 16px 0;
+border-radius: 6px;
+font-weight: 500;
+}
+.note {
+background-color: var(--note-bg);
+border-left: 5px solid var(--note-border);
+padding: 15px 20px;
+margin: 20px 0;
+border-radius: 4px;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+margin: 16px 0;
+font-size: 14px;
+}
+th, td {
+border: 1px solid var(--border-color);
+padding: 10px 12px;
+text-align: left;
+}
+th { background-color: #FAFBFC; font-weight: 600; }
+.actor { font-style: italic; color: #6B778C; }
+.icon { margin-right: 10px; }
+.subtitle { text-align: center; color: var(--text-secondary); margin-top: -16px; margin-bottom: 24px; }
+.recommendation { color: #006644; background-color: var(--success-bg); padding: 2px 6px; border-radius: 3px; }
+.avoid { color: #BF2600; background-color: var(--error-bg); padding: 2px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1><span class="icon">📋</span>FAQ - Quy trình Xử lý Yêu cầu trên JIRA</h1>
+<p class="subtitle">Tài liệu dành cho các bộ phận nội bộ (KD, TTTV, ONB, CSM)</p>
+<h2><span class="icon">➡️</span>Phần I: Tạo và Tiếp nhận Yêu cầu</h2>
+<h3>1. Khi nào tôi cần tạo một yêu cầu (ticket) trên JIRA?</h3>
+<p class="actor">Người thực hiện: Người tạo yêu cầu (KD/TTTV/ONB/CSM)</p>
+<p>Bạn cần tạo ticket khi gặp các trường hợp sau:</p>
+<ul>
+<li><strong>Lỗi chương trình:</strong> Chức năng không hoạt động như mong đợi, sai số liệu, hoặc hệ thống báo lỗi bất thường.</li>
+<li><strong>Cần cải tiến:</strong> Quy trình có thể được tối ưu hóa bằng tính năng mới hoặc thay đổi phần mềm giúp làm việc nhanh hơn.</li>
+<li><strong>Cần hỗ trợ nghiệp vụ:</strong> Tình huống phức tạp về dữ liệu hoặc quy trình không thể tự xử lý, cần đội kỹ thuật can thiệp.</li>
+</ul>
+<h3>2. Tôi cần cung cấp những thông tin gì để ticket được xử lý nhanh nhất?</h3>
+<p>Để yêu cầu được xử lý nhanh và chính xác, bạn cần cung cấp đầy đủ các thông tin sau:</p>
+<ul>
+<li><strong>Project và Issue Type:</strong> Chọn đúng loại dự án và loại yêu cầu.</li>
+<li><strong>Đơn vị phản ánh:</strong> Chọn đúng đơn vị của bạn (ONB/CSM/TTTV/...)</li>
+<li><strong>Tiêu đề:</strong> Rõ ràng, súc tích, tóm tắt được vấn đề.<br>
+<span class="recommendation">Nên:</span> "Lỗi không thể nhập chiết khấu cho đơn hàng trên 10 dòng sản phẩm."<br>
+<span class="avoid">Không nên:</span> "Lỗi nhập liệu."</li>
+<li><strong>Mô tả chi tiết:</strong> Vấn đề hoặc nhu cầu cụ thể.</li>
+<li><strong>Các bước tái hiện lỗi (Steps to reproduce):</strong> Mô tả chính xác từng bước để đội kỹ thuật có thể tái hiện lỗi.</li>
+<li><strong>Môi trường xảy ra lỗi:</strong> Ví dụ: Win, Mac, Chrome, Edge...</li>
+<li><strong>Tệp đính kèm:</strong> Ảnh chụp màn hình, video quay lại thao tác, file log liên quan.</li>
+<li><strong>Mức độ ưu tiên đề xuất:</strong> Cao, Trung bình, Thấp.</li>
+</ul>
+<h3>3. Sau khi tôi tạo ticket, ai sẽ tiếp nhận và trong bao lâu?</h3>
+<p class="actor">Người thực hiện: Bộ phận tiếp nhận ban CNTT (JIRA Team)</p>
+<p>JIRA Team sẽ tiếp nhận yêu cầu, chuyển trạng thái ticket sang <code>Đã tiếp nhận</code> và gán cho người phụ trách.</p>
+<div class="kpi-box"><span class="icon">⏱️</span><strong>KPI:</strong> JIRA Team phải xem xét và hiểu rõ nội dung yêu cầu trong vòng <strong>1 giờ</strong> kể từ khi ticket được tạo.</div>
+<p>JIRA Team sẽ phân loại sơ bộ yêu cầu thành 3 luồng chính: <strong>Lỗi phần mềm</strong>, <strong>Yêu cầu phát triển</strong>, hoặc <strong>Yêu cầu hỗ trợ</strong>. Nếu thông tin chưa đầy đủ, sẽ yêu cầu bổ sung qua bình luận.</p>
+<h3>4. Nếu yêu cầu của tôi bị trùng lặp thì sẽ xử lý thế nào?</h3>
+<p class="actor">Người thực hiện: JIRA Team</p>
+<p>Nếu yêu cầu bị trùng với một yêu cầu đã có trước đó:</p>
+<ul>
+<li>Trạng thái ticket mới sẽ chuyển sang <code>Đã xử lý</code>.</li>
+<li>Lý do (Resolution) là <code>Vấn đề lặp lại đã thực hiện trước đó</code>.</li>
+<li>JIRA Team sẽ bình luận trên cả ticket mới và ticket gốc để chỉ rõ sự liên kết. Bạn nên theo dõi ticket gốc.</li>
+</ul>
+<h2><span class="icon">🚦</span>Phần II: Phân loại và Xử lý Lỗi</h2>
+<h3>5. "Lỗi chương trình" và "Lỗi dữ liệu" được định nghĩa như thế nào theo quy trình?</h3>
+<p class="actor">Người thực hiện: QC</p>
+<table>
+<thead>
+<tr>
+<th>Loại lỗi</th>
+<th>Định nghĩa theo quy trình</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lỗi chương trình</strong></td>
+<td>Là những trường hợp làm cho không thực hiện được nghiệp vụ, sai nghiệp vụ, sai số liệu, gây nhầm lẫn hoặc làm trái với thiết kế phần mềm. Cần can thiệp mã nguồn để sửa.</td>
+</tr>
+<tr>
+<td><strong>Lỗi dữ liệu</strong></td>
+<td>Lỗi do dữ liệu sai lệch gây ảnh hưởng số liệu hoặc chức năng. Có thể khắc phục bằng cách sửa dữ liệu, không cần sửa mã nguồn. Thường xảy ra khi thao tác dữ liệu, tương tác công cụ bên thứ 3, hoặc do sự cố chuyển đổi dữ liệu.</td>
+</tr>
+</tbody>
+</table>
+<h3>6. Nếu tôi gặp lỗi nghiêm trọng làm tắc nghẽn công việc, có giải pháp tạm thời không?</h3>
+<p class="actor">Người thực hiện: BPTN/EM/SWE/QC</p>
+<p>Có. Đội kỹ thuật sẽ cung cấp giải pháp khắc phục tạm thời để bạn tiếp tục công việc trong khi chờ bản vá chính thức.</p>
+<div class="kpi-box"><span class="icon">⏱️</span><strong>KPI:</strong> Giải pháp tạm thời phải được cung cấp trong vòng <strong>3 giờ làm việc</strong> kể từ khi ticket được tạo.</div>
+<h3>7. Thời gian xử lý triệt để cho từng loại lỗi là bao lâu?</h3>
+<p class="actor">Người thực hiện: PM/EM/SWE/QC</p>
+<ul>
+<li><strong>Lỗi dữ liệu:</strong> Sửa triệt để trong vòng <strong>2 ngày</strong>.</li>
+<li><strong>Lỗi chương trình:</strong> Sửa triệt để trong vòng <strong>5 ngày</strong>.</li>
+</ul>
+<p>Sau khi sửa lỗi, mã JIRA sẽ cập nhật trường <code>FixVersion</code> và trạng thái <code>Đã sửa lỗi</code>. Với lỗi dữ liệu hoặc lỗi chương trình không cần sửa code, sẽ thêm label <code>NotRelease</code>.</p>
+<h2><span class="icon">🚀</span>Phần III: Xử lý Yêu cầu Phát triển (YCPT)</h2>
+<h3>8. Một Yêu cầu phát triển của tôi sẽ trải qua những bước nào?</h3>
+<ol>
+<li><strong>Làm rõ (BA):</strong> BA làm việc với bạn để hiểu sâu yêu cầu, mô tả chi tiết trên JIRA. Trạng thái ticket: <code>Đã làm rõ</code>.</li>
+<li><strong>Phê duyệt (PM):</strong> PM xem xét và quyết định duyệt hoặc từ chối. Trạng thái: <code>Đã duyệt</code> hoặc <code>Từ chối</code> kèm lý do.</li>
+<li><strong>Sắp xếp ưu tiên (EM/PO):</strong> Nếu duyệt, yêu cầu được đưa vào backlog và sắp xếp ưu tiên dựa trên tác động kinh doanh, số lượng người dùng ảnh hưởng, nỗ lực thực hiện.</li>
+<li><strong>Lên kế hoạch & Xử lý (EM/PM/DEV):</strong> Yêu cầu được đưa vào kế hoạch phát triển phiên bản tiếp theo. Trường <code>FixVersion</code> được cập nhật để theo dõi.</li>
+</ol>
+<h3>9. Tại sao Yêu cầu phát triển của tôi bị "Từ chối" (Rejected)?</h3>
+<p class="actor">Người thực hiện: PM</p>
+<p>PM sẽ ghi rõ lý do từ chối trong bình luận. Các lý do phổ biến:</p>
+<ul>
+<li>Không phù hợp định hướng chiến lược sản phẩm.</li>
+<li>Chỉ đặc thù cho số ít người dùng, lợi ích thấp.</li>
+<li>Chi phí kỹ thuật quá cao so với giá trị mang lại.</li>
+</ul>
+<h3>10. Làm sao tôi biết yêu cầu phát triển của mình đã được xử lý xong?</h3>
+<p class="actor">Người thực hiện: JIRA Team/EM/QC/PM</p>
+<p>Khi hoàn thành, đội ngũ phụ trách sẽ bổ sung bình luận trên JIRA thông báo kết quả. Bạn dựa vào đó để kiểm tra.</p>
+<h3>11. Quy trình nghiệm thu và đóng một YCPT như thế nào?</h3>
+<p class="actor">Người thực hiện: Người tạo yêu cầu (KD/TTTV/ONB/CSM)</p>
+<ol>
+<li>Kiểm tra lại tính năng hoặc yêu cầu đã phát triển trên đúng phiên bản thông báo.</li>
+<li>Nếu đã đáp ứng: Bình luận xác nhận nghiệm thu là <strong>"Đạt"</strong> và chuyển trạng thái sang <code>Closed</code>.</li>
+<li>Nếu chưa đạt hoặc có phát sinh mới: Bình luận chi tiết và <strong>Reopen</strong> ticket để Ban CNTT tiếp tục xử lý.</li>
+</ol>
+<div class="note"><strong>Lưu ý:</strong> Tuyệt đối không tạo ticket mới cho vấn đề chưa giải quyết triệt để. Sử dụng chức năng <strong>Reopen</strong> để giữ luồng xử lý liền mạch và lịch sử trao đổi.</div>
+<h2><span class="icon">✅</span>Phần IV: Thông báo và Nghiệm thu Chung</h2>
+<h3>12. Làm sao tôi biết yêu cầu của mình đã được xử lý xong?</h3>
+<p class="actor">Người thực hiện: JIRA Team/EM/QC/PM</p>
+<p>Khi yêu cầu được xử lý xong (sửa lỗi hoặc phát triển tính năng), đội ngũ phụ trách sẽ bổ sung bình luận trên JIRA để thông báo kết quả. Bạn cần dựa vào đó để kiểm tra.</p>
+<h3>13. Quy trình nghiệm thu và đóng một ticket như thế nào?</h3>
+<p class="actor">Người thực hiện: Người tạo yêu cầu (KD/TTTV/ONB/CSM)</p>
+<ol>
+<li>Kiểm tra lại chức năng hoặc xác minh lỗi đã được khắc phục trên đúng phiên bản thông báo.</li>
+<li>Nếu vấn đề đã được giải quyết: Bình luận xác nhận nghiệm thu là <strong>"Đạt"</strong> và chuyển trạng thái sang <code>Closed</code>.</li>
+<li>Nếu vấn đề vẫn còn tồn tại: Bình luận chi tiết và <strong>Reopen</strong> ticket để Ban CNTT tiếp tục xử lý.</li>
+</ol>
+<div class="note"><strong>Lưu ý:</strong> Không tạo ticket mới cho vấn đề chưa được giải quyết triệt để. Sử dụng chức năng <strong>Reopen</strong> để đảm bảo luồng xử lý liền mạch và giữ nguyên lịch sử trao đổi.</div>
+</div>
+</body>
+</html>
