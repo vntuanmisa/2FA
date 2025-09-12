@@ -252,7 +252,49 @@ Nếu vẫn không hiệu quả, hãy báo cáo cho quản lý trực tiếp c�
 <h2><span class="icon">✅</span>Phần V: Thông báo và Nghiệm thu Chung</h2>
 <h3>15. Làm sao tôi biết yêu cầu của mình đã được xử lý xong?</h3>
 <p class="actor">Người thực hiện: JIRA Team/EM/QC/PM</p>
-<p>Khi yêu cầu được xử lý xong (sửa lỗi hoặc phát triển xong tính năng), đội ngũ phụ trách sẽ bổ sung bình luận trên JIRA để thông báo kết quả. Bạn cần dựa vào thông báo này để tiến hành kiểm tra.</p>
+<p>Khi một yêu cầu đã được xử lý xong, đội ngũ kỹ thuật sẽ cập nhập tình trạng <strong>"Resolved"</strong> với <strong>"Resolution"</strong> tương ứng. Đây là trạng thái cho biết bạn cần vào để <strong>kiểm tra và nghiệm thu</strong>.</p>
+<p>Ý nghĩa cụ thể của <strong>"Resolved"</strong> và hành động tiếp theo của bạn sẽ phụ thuộc vào <strong>loại yêu cầu</strong> và <strong>Resolution</strong> đi kèm.</p>
+<table>
+<thead>
+<tr>
+<th width = "100">Loại Yêu Cầu</th>
+<th width = "180">Tình Trạng "Resolve" / <br>Tình trạng sửa lỗi</th>
+<th>Ý Nghĩa &amp; Hành Động</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧑‍🔧 <strong>Hỗ trợ / Lỗi dữ liệu</strong></td>
+<td><strong>• Đã xử lý / Đã hướng dẫn<br>• Đã sửa lỗi</strong></td>
+<td>Đội ngũ hỗ trợ đã thực hiện xong yêu cầu, xử lý xong dữ liệu lỗi hoặc đã cung cấp cho bạn hướng dẫn cần thiết. <strong>Bạn cần kiểm tra lại và xác nhận.</strong></td>
+</tr>
+<tr>
+<td>🐞 <strong>Lỗi chương trình</strong></td>
+<td>• <strong>Khắc phục tạm</strong><br>• <strong>Đã sửa lỗi</strong> (kèm <code>fix version</code> hoặc label <code>NotRelease</code>)</td>
+<td>• Nếu là <strong>"Khắc phục tạm"</strong>, bạn có thể sử dụng giải pháp tạm thời trong khi chờ bản vá lỗi chính thức.<br>
+• Nếu <strong>"Tình tình trạng sửa lỗi"</strong> được tích là <strong>"Đã sửa lỗi"</strong>, bạn cần <strong>chờ phiên bản (<code>fix version</code>)  tương ứng được phát hành</strong> để kiểm tra và xác nhận lỗi đã được khắc phục triệt để.<br><br>
+<i>Lưu ý: Trường hợp có label <code>NotRelease</code> tức là vấn đề này <strong>"đã được xử lý</strong>" mà không cần chờ bản phát hành (do lỗi xuất phát từ hạ tầng hoặc cách triển khai). Bạn có thể vào kiểm tra và xác nhận ngay.</i>
+</td>
+</tr>
+<tr>
+<td>✨ <strong>Phát triển tính năng mới</strong></td>
+<td><strong>Đã sửa phần mềm</strong> (kèm <code>fix version</code>)</td>
+<td>Tính năng mới đã được phát triển xong. Bạn cần <strong>chờ phiên bản (<code>fix version</code>) tương ứng được phát hành để kiểm tra</strong> và nghiệm thu tính năng mới này.</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+<p><strong>Tóm lại:</strong></p>
+<ol>
+<li>Trạng thái <strong>"Resolved"</strong> cho biết rằng vấn đề này đã được xử lý dữ liệu hoặc đã có giải pháp tạm thời.</li>
+<li>Tình trạng sửa lỗi được tích <strong>"Đã sửa lỗi"</strong> để bạn biết rằng vấn đề đã được xử lý triệt để, bạn cần <em>"kiểm tra lại và xác nhận."</em>.</li>
+<li>Dù là trường hợp nào, bạn cũng cần:</li>
+<ol>
+<li><strong>Comment</strong> xác nhận kết quả xử lý.</li>
+<li>Nếu vẫn chưa xử lý được vấn đề bạn báo cáo, hãy<strong>"Reopen"</strong> để dự án biết và kiểm tra xử lý lại.</li>
+</ol>
+</ol>
+</div>
 <h3>16. Quy trình nghiệm thu và đóng một ticket như thế nào?</h3>
 <p class="actor">Người thực hiện: Người tạo yêu cầu (KD/TTTV/ONB/CSM)</p>
 <p>Đây là bước cuối cùng và thuộc trách nhiệm của bạn:</p>
