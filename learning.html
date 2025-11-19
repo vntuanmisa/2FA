@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Dự án 10.000 CEO (Fast-track 6 Tháng)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; color: #1e293b; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* Effects */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 1rem;
+        }
+        
+        .biz-card {
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .biz-card:hover {
+            transform: translateX(4px);
+            background-color: #f8fafc;
+        }
+
+        /* Gantt Grid specific for 6 months */
+        .gantt-grid { display: grid; grid-template-columns: 200px repeat(6, 1fr); gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 0.5rem; overflow: hidden; }
+        .gantt-cell { background-color: white; padding: 8px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; }
+        .gantt-label { justify-content: flex-start !important; padding-left: 12px; font-weight: 600; color: #334155; }
+        .gantt-header { background-color: #f1f5f9; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; }
+        .gantt-bar { height: 20px; border-radius: 4px; font-size: 0.7rem; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white pt-10 pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end">
+                <div>
+                   
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">Hệ thống Đào tạo 10.000 CEO</h1>
+                    <p class="text-slate-400">Kế hoạch Triển khai & Phân tích Nghiệp vụ</p>
+                </div>
+                <div class="text-right mt-6 md:mt-0">
+                    <div class="text-sm text-slate-400 uppercase font-semibold">Tổng thời gian</div>
+                    <div class="text-3xl font-bold text-white">06 Tháng</div>
+                    <div class="text-emerald-400 font-mono text-sm">01/2026 - 06/2026</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 -mt-12 relative z-20 space-y-8">
+
+        <!-- 1. High-Level Metrics -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass-panel p-5 border-t-4 border-blue-500">
+                <div class="text-slate-500 text-xs font-bold uppercase">Tổng Effort</div>
+                <div class="text-3xl font-bold text-slate-800 mt-1">60 <span class="text-sm text-slate-500 font-normal">MM</span></div>
+                <div class="text-xs text-slate-500 mt-2">~10,000 giờ công</div>
+            </div>
+            <div class="glass-panel p-5 border-t-4 border-red-500">
+                <div class="text-slate-500 text-xs font-bold uppercase">Nhân sự</div>
+                <div class="text-3xl font-bold text-red-600 mt-1">10 <span class="text-sm text-slate-500 font-normal">NS/Tháng</span></div>
+                <div class="text-xs text-slate-500 mt-2">Trung bình (Full-time)</div>
+            </div>
+            <div class="glass-panel p-5 border-t-4 border-emerald-500">
+                <div class="text-slate-500 text-xs font-bold uppercase">Tiến độ Yêu cầu</div>
+                <div class="text-3xl font-bold text-emerald-600 mt-1">T1 <span class="text-sm text-slate-500 font-normal">-></span> T6</div>
+                <div class="text-xs text-slate-500 mt-2">Năm 2026</div>
+            </div>
+            <div class="glass-panel p-5 border-t-4 border-indigo-500">
+                <div class="text-slate-500 text-xs font-bold uppercase">Quy mô Nghiệp vụ</div>
+                <div class="text-3xl font-bold text-indigo-600 mt-1">05 <span class="text-sm text-slate-500 font-normal">Nhóm</span></div>
+                <div class="text-xs text-slate-500 mt-2">Đa đối tượng sử dụng</div>
+            </div>
+        </section>
+
+        <!-- 2. Business Requirement Overview (NEW SECTION) -->
+        <section class="glass-panel p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                Tổng quan Nghiệp vụ & Chức năng (Phân tích chi tiết)
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column -->
+                <div class="space-y-4">
+                    <!-- Group 1 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 biz-card border-l-blue-500">
+                        <h3 class="font-bold text-blue-800 text-sm mb-2 flex justify-between">
+                            1. Cục PT Doanh nghiệp & Quản trị
+                            <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs">Admin</span>
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside pl-1">
+                            <li><strong>IAM & Phân quyền:</strong> Quản lý ma trận phân quyền, Audit Log hệ thống.</li>
+                            <li><strong>Dashboard M&E Quốc gia:</strong> Biểu đồ Realtime theo Tỉnh/Bộ ngành.</li>
+                            <li><strong>Data Warehouse:</strong> Import & Validate dữ liệu đào tạo tập trung.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Group 2 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 biz-card border-l-indigo-500">
+                        <h3 class="font-bold text-indigo-800 text-sm mb-2 flex justify-between">
+                            2. Cơ quan Quản lý (Bộ/Địa phương)
+                            <span class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-xs">Quản lý</span>
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside pl-1">
+                            <li><strong>Quản lý Ngân sách:</strong> Phân bổ hạn mức kinh phí, cảnh báo giải ngân chậm.</li>
+                            <li><strong>Quyết toán (TT36):</strong> Phê duyệt báo cáo quyết toán từ NCC.</li>
+                            <li><strong>Giám sát:</strong> Theo dõi lớp học và học viên theo địa bàn.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-4">
+                    <!-- Group 3 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 biz-card border-l-amber-500">
+                        <h3 class="font-bold text-amber-800 text-sm mb-2 flex justify-between">
+                            3. Nhà cung cấp Đào tạo (NCC)
+                            <span class="bg-amber-100 text-amber-600 px-2 py-0.5 rounded text-xs">Partner</span>
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside pl-1">
+                            <li><strong>Hồ sơ năng lực:</strong> Nộp và cập nhật hồ sơ giảng viên/đơn vị online.</li>
+                            <li><strong>Tổ chức lớp học:</strong> Đăng tải kế hoạch, timeline, học liệu số.</li>
+                            <li><strong>Điểm danh:</strong> QR Code điểm danh học viên, đồng bộ dữ liệu M&E.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Group 4 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 biz-card border-l-emerald-500">
+                        <h3 class="font-bold text-emerald-800 text-sm mb-2 flex justify-between">
+                            4. Học viên (CEO/Doanh nghiệp)
+                            <span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-xs">End-User</span>
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside pl-1">
+                            <li><strong>Cổng thông tin (App/Web):</strong> Xác thực VNeID (SSO).</li>
+                            <li><strong>E-Voucher:</strong> Nhận và sử dụng học bổng điện tử.</li>
+                            <li><strong>Đánh giá năng lực:</strong> Bài test online & Biểu đồ Radar năng lực.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cross Cutting -->
+            <div class="mt-4 bg-slate-50 p-3 rounded border border-slate-200 flex flex-wrap gap-4 items-center justify-center text-xs font-medium text-slate-500">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-400 rounded-full"></span> Tích hợp VNeID (Bộ CA)</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-400 rounded-full"></span> Bảo mật NCSC</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-400 rounded-full"></span> API E-learning</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-400 rounded-full"></span> Module Truyền thông</span>
+            </div>
+        </section>
+<!-- 3. Detailed Estimation Table (MỚI BỔ SUNG) -->
+        <section class="glass-panel overflow-hidden">
+			<div class="p-6 border-b border-slate-200 flex justify-between items-center bg-white/50">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Bảng Chi tiết Ước lượng (Man-month)
+                </h2>
+                <div class="flex items-center gap-4">
+                    <a href="https://docs.google.com/spreadsheets/d/1iGIZ_P_tsOOtE72lM8dOLTSb4fAgfwuF/edit?usp=sharing&ouid=103038394049208849870&rtpof=true&sd=true" target="_blank" class="text-xs md:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 hover:underline bg-blue-50 px-3 py-1 rounded-full border border-blue-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        Xem File Excel Chi tiết
+                    </a>
+                    <span class="text-xs text-slate-400 italic border-l border-slate-300 pl-4 hidden md:inline-block">Đơn vị: Người/Tháng</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-3">Hạng mục / Phân hệ</th>
+                            <th class="px-6 py-3 text-right">Phân tích (BA)</th>
+                            <th class="px-6 py-3 text-right">Phát triển (Dev)</th>
+                            <th class="px-6 py-3 text-right">Kiểm thử (QC)</th>
+                            <th class="px-6 py-3 text-right font-bold text-slate-700">Tổng (MM)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estimationTableBody" class="divide-y divide-slate-100">
+                        <!-- JS Injection Here -->
+                    </tbody>
+                    <tfoot>
+                         <tr class="font-bold text-slate-800 bg-blue-50/50 border-t border-blue-100">
+                            <td class="px-6 py-4">TỔNG CỘNG</td>
+                            <td class="px-6 py-4 text-right" id="sum-pttk">0</td>
+                            <td class="px-6 py-4 text-right" id="sum-dev">0</td>
+                            <td class="px-6 py-4 text-right" id="sum-test">0</td>
+                            <td class="px-6 py-4 text-right text-blue-700 text-base" id="sum-total">60.0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+        <!-- 3. Resource Plan (Recalculated) -->
+        <section class="glass-panel p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800 border-l-4 border-red-500 pl-3">Đề xuất Nhân sự (Quy mô 60MM / 6 Tháng)</h2>
+                <span class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">High Intensity</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <!-- PM/BA -->
+                <div class="bg-white p-4 rounded shadow-sm border border-slate-200">
+                    <div class="font-bold text-slate-700 mb-2">1. Quản lý & Phân tích</div>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between"><span>Project Manager</span> <span class="font-bold text-blue-600">01</span></li>
+                        <li class="flex justify-between"><span>Business Analyst (BA)</span> <span class="font-bold text-blue-600">02</span></li>
+                        <li class="text-xs text-slate-400 italic mt-2">Phân tích song song các module để kịp tiến độ dev.</li>
+                    </ul>
+                </div>
+                <!-- Dev Core -->
+                <div class="bg-white p-4 rounded shadow-sm border border-slate-200">
+                    <div class="font-bold text-slate-700 mb-2">2. Đội Backend/Core</div>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between"><span>Tech Lead (Architect)</span> <span class="font-bold text-indigo-600">01</span></li>
+                        <li class="flex justify-between"><span>Backend Developer</span> <span class="font-bold text-indigo-600">03</span></li>
+                        <li class="text-xs text-slate-400 italic mt-2">Xây dựng API, Database, Tích hợp VNeID.</li>
+                    </ul>
+                </div>
+                <!-- Dev Frontend -->
+                <div class="bg-white p-4 rounded shadow-sm border border-slate-200">
+                    <div class="font-bold text-slate-700 mb-2">3. Đội Frontend/App</div>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between"><span>Web Frontend</span> <span class="font-bold text-amber-600">02</span></li>
+                        <li class="flex justify-between"><span>Mobile App (Flutter/RN)</span> <span class="font-bold text-amber-600">02</span></li>
+                        <li class="text-xs text-slate-400 italic mt-2">Phát triển App Học viên & Web Admin song song.</li>
+                    </ul>
+                </div>
+                <!-- QC/Support -->
+                <div class="bg-white p-4 rounded shadow-sm border border-slate-200">
+                    <div class="font-bold text-slate-700 mb-2">4. QA & Triển khai</div>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between"><span>QC/Tester</span> <span class="font-bold text-emerald-600">02</span></li>
+                        <li class="flex justify-between"><span>DevOps/System</span> <span class="font-bold text-emerald-600">01</span></li>
+                        <li class="text-xs text-slate-400 italic mt-2">Cuốn chiếu (Agile) & Bảo mật.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-4 text-center font-bold text-slate-700 bg-slate-100 p-2 rounded">
+                Tổng nhân sự đề xuất: 14 Người (Peak Time)
+            </div>
+        </section>
+
+        <!-- 4. Charts (Data Labels Enabled) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="glass-panel p-6 lg:col-span-2">
+                <h3 class="font-bold text-slate-700 mb-4">Phân bổ Effort (Man-month)</h3>
+                <div class="h-64">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            <div class="glass-panel p-6">
+                <h3 class="font-bold text-slate-700 mb-4">Cơ cấu Công việc</h3>
+                <div class="h-64">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Timeline (Compressed 6 Months) -->
+        <section class="glass-panel p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 border-l-4 border-orange-500 pl-3">Lộ trình Triển khai đề xuất</h2>
+            <div class="overflow-x-auto">
+                <div class="min-w-[800px]">
+                    <!-- Header -->
+                    <div class="gantt-grid mb-2">
+                        <div class="gantt-cell gantt-header">Hạng mục / Tháng</div>
+                        <div class="gantt-cell gantt-header">Tháng 1</div>
+                        <div class="gantt-cell gantt-header">Tháng 2</div>
+                        <div class="gantt-cell gantt-header">Tháng 3</div>
+                        <div class="gantt-cell gantt-header">Tháng 4</div>
+                        <div class="gantt-cell gantt-header">Tháng 5</div>
+                        <div class="gantt-cell gantt-header">Tháng 6</div>
+                    </div>
+
+                    <!-- Rows -->
+                    <div class="space-y-1">
+                        <!-- Row 1 -->
+                        <div class="gantt-grid border-0 bg-transparent gap-1">
+                            <div class="gantt-cell gantt-label border border-slate-200 rounded-l">1. Core & IAM</div>
+                            <div class="gantt-cell col-span-2 bg-transparent p-1 border border-slate-100">
+                                <div class="gantt-bar bg-blue-500 w-full">PTTK & Base System</div>
+                            </div>
+                            <div class="gantt-cell col-span-4 bg-transparent border border-slate-100"></div>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="gantt-grid border-0 bg-transparent gap-1">
+                            <div class="gantt-cell gantt-label border border-slate-200 rounded-l">2. QL Đào tạo & NS</div>
+                            <div class="gantt-cell bg-transparent border border-slate-100"></div>
+                            <div class="gantt-cell col-span-3 bg-transparent p-1 border border-slate-100">
+                                <div class="gantt-bar bg-indigo-500 w-full">Phát triển Module Nghiệp vụ</div>
+                            </div>
+                            <div class="gantt-cell col-span-2 bg-transparent border border-slate-100"></div>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="gantt-grid border-0 bg-transparent gap-1">
+                            <div class="gantt-cell gantt-label border border-slate-200 rounded-l">3. Portal/Mobile App</div>
+                            <div class="gantt-cell col-span-2 bg-transparent border border-slate-100"></div>
+                            <div class="gantt-cell col-span-2 bg-transparent p-1 border border-slate-100">
+                                <div class="gantt-bar bg-amber-500 w-full">Mobile App CEO</div>
+                            </div>
+                            <div class="gantt-cell col-span-2 bg-transparent border border-slate-100"></div>
+                        </div>
+
+                        <!-- Row 4 -->
+                        <div class="gantt-grid border-0 bg-transparent gap-1">
+                            <div class="gantt-cell gantt-label border border-slate-200 rounded-l">4. Tích hợp & UAT</div>
+                            <div class="gantt-cell col-span-4 bg-transparent border border-slate-100"></div>
+                            <div class="gantt-cell bg-transparent p-1 border border-slate-100">
+                                <div class="gantt-bar bg-rose-500 w-full">UAT & Fix</div>
+                            </div>
+                            <div class="gantt-cell bg-transparent border border-slate-100"></div>
+                        </div>
+
+                        <!-- Row 5 -->
+                        <div class="gantt-grid border-0 bg-transparent gap-1">
+                            <div class="gantt-cell gantt-label border border-slate-200 rounded-l">5. Golive & Training</div>
+                            <div class="gantt-cell col-span-5 bg-transparent border border-slate-100"></div>
+                            <div class="gantt-cell bg-transparent p-1 border border-slate-100">
+                                <div class="gantt-bar bg-emerald-500 w-full">Đào tạo & chuyển giao</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+        <script>
+        // Register DataLabels Plugin
+        Chart.register(ChartDataLabels);
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // Detailed Data for Table & Charts (Total 60MM)
+        const modules = [
+            { name: 'QTHT & Core', pttk: 1.0, dev: 4.0, test: 1.5 },
+            { name: 'QL Đào tạo', pttk: 1.5, dev: 5.5, test: 2.0 },
+            { name: 'Cổng Thông tin Học viên', pttk: 1.5, dev: 6.0, test: 2.0 },
+            { name: 'QL Ngân sách & Giám sát', pttk: 1.5, dev: 4.5, test: 1.0 },
+            { name: 'Dashboard & cáo', pttk: 1.0, dev: 6.0, test: 2.0 },
+            { name: 'Tích hợp & Thông báo', pttk: 1.0, dev: 4.0, test: 1.5 },
+            { name: 'Hệ thống truyền thông', pttk: 1.0, dev: 3.0, test: 1.0 },
+            { name: 'Phi chức năng', pttk: 2.0, dev: 3.5, test: 2.0 }
+        ];
+
+        // 1. Render Table
+        const tableBody = document.getElementById('estimationTableBody');
+        let sumPttk = 0, sumDev = 0, sumTest = 0;
+
+        modules.forEach(m => {
+            const total = m.pttk + m.dev + m.test;
+            sumPttk += m.pttk;
+            sumDev += m.dev;
+            sumTest += m.test;
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition-colors";
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-medium text-slate-700">${m.name}</td>
+                <td class="px-6 py-4 text-right text-slate-600">${m.pttk.toFixed(1)}</td>
+                <td class="px-6 py-4 text-right text-slate-600">${m.dev.toFixed(1)}</td>
+                <td class="px-6 py-4 text-right text-slate-600">${m.test.toFixed(1)}</td>
+                <td class="px-6 py-4 text-right font-bold text-blue-600">${total.toFixed(1)}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        // Update Footer
+        document.getElementById('sum-pttk').innerText = sumPttk.toFixed(1);
+        document.getElementById('sum-dev').innerText = sumDev.toFixed(1);
+        document.getElementById('sum-test').innerText = sumTest.toFixed(1);
+        document.getElementById('sum-total').innerText = (sumPttk + sumDev + sumTest).toFixed(1);
+
+
+        // 2. Chart Logic
+        const labels = modules.map(m => m.name);
+        const dataValues = modules.map(m => m.pttk + m.dev + m.test);
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Nỗ lực (MM)',
+                    data: dataValues,
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderRadius: 4,
+                    barPercentage: 0.7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        anchor: 'end',
+                        align: 'start',
+                        offset: -20,
+                        font: { weight: 'bold' },
+                        formatter: (value) => value
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Dev (60%)', 'BA (20%)', 'QC (20%)'],
+                datasets: [{
+                    data: [sumDev, sumPttk, sumTest],
+                    backgroundColor: ['#3b82f6', '#94a3b8', '#10b981'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value, ctx) => {
+                            // Simple label based on index
+                            const percent = ((value / 60) * 100).toFixed(0);
+                            return percent + '%';
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
