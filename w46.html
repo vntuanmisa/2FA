@@ -276,10 +276,8 @@
 				return `
 					<div class="flex flex-col items-center text-center gap-4 md:gap-6 max-w-6xl mx-auto">
                         <h1 class="text-4xl md:text-6xl font-extrabold leading-tight ${textColor}">${data.title}</h1>
-                        <div class="w-20 h-1.5 bg-blue-500 rounded-full my-1 shrink-0"></div>
                         <p class="text-lg font-medium ${accentColor}">${data.highlight}</p>
                         ${!isPrint ? `<img src="${data.image}" class="w-full max-w-lg rounded-xl shadow-2xl mt-2 md:mt-4 border border-white/10 ${imageStyle}" onerror="this.style.display='none'">` : ''}
-                        <p class="mt-4 font-mono text-sm ${subTextColor} shrink-0">${data.date}</p>
                     </div>
 				`;
 			}
@@ -430,3 +428,4 @@
     </script>
 </body>
 </html>
+
