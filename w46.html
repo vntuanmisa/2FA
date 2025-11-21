@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CẬP NHẬT 1: Sửa tiêu đề hiển thị tiếng Việt có dấu -->
+    <title>Báo Cáo Phát Hành Tuần 46 - Ban CNTT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Print Styles */
+        @media print {
+            body { overflow: visible; background: white; color: black; }
+            #app-ui, #controls, .no-print { display: none !important; }
+            #print-container { display: block !important; }
+            .print-page { page-break-after: always; height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 20px; border-bottom: 1px solid #ddd; }
+            .print-page img { max-height: 300px; object-fit: contain; margin: 20px auto; }
+            .text-slate-300 { color: #444 !important; }
+            .text-blue-300 { color: #0056b3 !important; }
+            .glass-panel { border: 1px solid #ccc; background: none; color: black; box-shadow: none; }
+        }
+
+        /* Screen Styles */
+        #print-container { display: none; }
+
+        .slide-enter { animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide-exit { animation: slideOut 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .btn-tool {
+            @apply p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-2 text-sm font-medium border border-white/10;
+        }
+
+        /* Progress bar animation for auto-play */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background-color: #3b82f6; /* blue-500 */
+            width: 0%;
+            transition: width 100ms linear;
+            z-index: 60;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col relative">
+
+    <!-- Background (Screen Only) -->
+    <div class="absolute inset-0 z-0 no-print">
+        <!-- Fallback background if SVG fails -->
+        <div class="absolute inset-0 bg-slate-900"></div>
+        <img src="data:image/svg+xml;base64,IDxzdmcgd2lkdGg9IjEwMjQiIGhlaWdodD0iMTAyNCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+IDxkZWZzPiA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSItMTAwJSIgeTE9IjAiIHgyPSIwIiB5Mj0iMCI+IDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzBiMTEyMCIvPiA8c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+IDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBiMTEyMCIvPiA8YW5pbWF0ZVRyYW5zZm9ybSBpZD0iYSIgYXR0cmlidXRlTmFtZT0iZ3JhZGllbnRUcmFuc2Zvcm0iIHR5cGU9InRyYW5zbGF0ZSIgZnJvbT0iMCIgdG89IjIiIGR1cj0iMTBzIiBiZWdpbj0iMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+IDwvbGluZWFyR3JhZGllbnQ+IDwvZGVmcz4gPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9InVybCgjZykiLz4gPC9zdmc+" class="w-full h-full object-cover opacity-50" alt="bg">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+    </div>
+
+    <!-- Auto-play Progress Bar -->
+    <div id="auto-progress" class="progress-bar no-print"></div>
+
+    <!-- Header / Toolbar -->
+    <header id="app-ui" class="relative z-50 px-6 py-4 flex justify-between items-center border-b border-white/10 bg-slate-900/50 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/30">
+                <span class="material-symbols-outlined text-white">rocket_launch</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg md:text-xl tracking-wide">BAN CNTT</h1>
+                <p class="text-[10px] md:text-xs text-blue-300 uppercase tracking-widest">Tuần 46 - Năm 2025</p>
+            </div>
+        </div>
+        
+        <!-- Download Tools -->
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAutoPlay()" id="btn-autoplay" class="btn-tool text-green-400" title="Tạm dừng/Tiếp tục tự động chạy">
+                <span class="material-symbols-outlined text-lg" id="icon-autoplay">timer</span>
+                <span class="hidden md:inline text-xs" id="text-autoplay">10s</span>
+            </button>
+            <div class="h-6 w-px bg-white/20 mx-1"></div>
+            <button onclick="downloadHTML()" class="btn-tool" title="Tải file chạy offline">
+                <span class="material-symbols-outlined text-lg">html</span>
+                <span class="hidden md:inline">Tải HTML</span>
+            </button>
+            <button onclick="printToPDF()" class="btn-tool" title="In hoặc Lưu PDF">
+                <span class="material-symbols-outlined text-lg">print</span>
+                <span class="hidden md:inline">Lưu PDF</span>
+            </button>
+            <button onclick="toggleFullscreen()" class="btn-tool" title="Trình chiếu">
+                <span class="material-symbols-outlined text-lg">fullscreen</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Slide Display -->
+    <main id="slide-container" class="relative z-10 flex-1 flex items-center justify-center overflow-hidden p-4 no-print">
+        <!-- Slides will be injected here -->
+    </main>
+
+    <!-- Hidden Container for Printing -->
+    <div id="print-container" class="bg-white text-black">
+        <!-- Static Content for PDF Generation Injected Here -->
+    </div>
+
+    <!-- Navigation Controls -->
+    <footer id="controls" class="relative z-50 px-8 py-6 flex justify-between items-center no-print">
+        <div class="flex gap-2" id="indicators">
+            <!-- Indicators injected here -->
+        </div>
+        <div class="flex gap-4 items-center">
+            <button class="p-3 rounded-full glass-panel hover:bg-white/20 transition-all active:scale-95 group" onclick="prevSlide()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="text-sm font-mono text-blue-300" id="slide-counter">1 / 4</div>
+            <button class="p-3 rounded-full glass-panel hover:bg-white/20 transition-all active:scale-95 group" onclick="nextSlide()">
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA ---
+        const slidesData = [
+            {
+                type: 'intro',
+                title: "CẢI TIẾN CÔNG CỤ NỘI BỘ",
+                subtitle: "Báo cáo phát hành Tuần 46",
+                highlight: "Tập trung: Trải nghiệm Khách hàng & Tự động hóa",
+                date: "Hiệu lực: 24/11/2025",
+                image: "w46_1.png" // Placeholder for reliability
+            },
+            {
+                type: 'feature',
+                tag: "CRM MISA & AVA",
+                title: "Phân tích khách hàng với AVA",
+                description: "Tính năng mới trên phân hệ chào hàng CRM giúp thấu hiểu nhu cầu khách hàng tức thì.",
+                listTitle: "Giá trị mang lại:",
+                items: [
+                    "NVKD nắm bắt nhanh nhu cầu (pain point).",
+                    "Gợi ý sản phẩm phù hợp ngữ cảnh.",
+                    "Tăng tỷ lệ chuyển đổi cơ hội thành đơn hàng."
+                ],
+                note: "Áp dụng cho toàn bộ NVKD",
+                image: "w46_2.png"
+            },
+            {
+                type: 'feature',
+                tag: "MISA STORE",
+                title: "Quy trình Sau bán hàng",
+                description: "Tự động hóa luồng xử lý yêu cầu từ Khách hàng đến Kế toán.",
+                listTitle: "Cải tiến nổi bật:",
+                items: [
+                    "Khách hàng: Gửi yêu cầu & theo dõi đơn hàng dễ dàng.",
+                    "NVKD/CSM: Nhận thông báo & xử lý ngay lập tức.",
+                    "Kế toán: Tự động cắt thuê bao/hoàn tiền, giảm thủ công."
+                ],
+                note: "Đối tượng: KH, NVKD, CSM, Kế toán",
+                image: "w46_3.png"
+            },
+            {
+                type: 'summary',
+                tag: "CÁC HỆ THỐNG KHÁC",
+                title: "Tổng hợp nâng cấp khác",
+                cards: [
+                    { title: "MISA Partner R40", text: "Cập nhật phân loại Đại lý mới/cũ. Báo cáo chi tiết CTV & luồng ghi nhận nguồn đối tác." },
+                    { title: "MCP Dashboard", text: "Báo cáo biến động tình hình chiếm lĩnh HKD. Đưa lên tường AMIS phục vụ Ban lãnh đạo." }
+                ],
+                image: "w46_4.png"
+            }
+        ];
+
+        let currentIndex = 0;
+        const container = document.getElementById('slide-container');
+        
+        // --- AUTO PLAY LOGIC (CẬP NHẬT 2) ---
+        let autoPlayInterval;
+        let progressInterval;
+        let isAutoPlayActive = true;
+        const AUTO_PLAY_DURATION = 10000; // 10 seconds
+        let timeElapsed = 0;
+
+        function startAutoPlay() {
+            if (!isAutoPlayActive) return;
+
+            // Clear existing
+            clearInterval(autoPlayInterval);
+            clearInterval(progressInterval);
+            
+            timeElapsed = 0;
+            updateProgressBar(0);
+
+            // Progress bar updater (runs every 100ms for smoothness)
+            progressInterval = setInterval(() => {
+                timeElapsed += 100;
+                const percentage = (timeElapsed / AUTO_PLAY_DURATION) * 100;
+                updateProgressBar(percentage);
+            }, 100);
+
+            // Slide changer
+            autoPlayInterval = setInterval(() => {
+                nextSlide(true); // true indicates auto-triggered
+            }, AUTO_PLAY_DURATION);
+            
+            updateAutoPlayIcon(true);
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+            clearInterval(progressInterval);
+            updateProgressBar(0);
+            updateAutoPlayIcon(false);
+        }
+
+        function resetAutoPlay() {
+            // Called on manual interaction
+            if (isAutoPlayActive) {
+                startAutoPlay();
+            }
+        }
+
+        function toggleAutoPlay() {
+            isAutoPlayActive = !isAutoPlayActive;
+            if (isAutoPlayActive) {
+                startAutoPlay();
+            } else {
+                stopAutoPlay();
+            }
+        }
+
+        function updateProgressBar(percent) {
+            const bar = document.getElementById('auto-progress');
+            if(bar) bar.style.width = `${percent}%`;
+        }
+
+        function updateAutoPlayIcon(isActive) {
+            const icon = document.getElementById('icon-autoplay');
+            const text = document.getElementById('text-autoplay');
+            const btn = document.getElementById('btn-autoplay');
+            
+            if(isActive) {
+                if(icon) icon.innerText = 'timer';
+                if(btn) btn.classList.add('text-green-400');
+                if(btn) btn.classList.remove('text-gray-400');
+            } else {
+                if(icon) icon.innerText = 'timer_off';
+                if(btn) btn.classList.remove('text-green-400');
+                if(btn) btn.classList.add('text-gray-400');
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
+
+        function getSlideHTML(data, isPrint = false) {
+            const textColor = isPrint ? 'text-gray-800' : 'text-white';
+            const subTextColor = isPrint ? 'text-gray-600' : 'text-slate-300';
+            const accentColor = isPrint ? 'text-blue-700' : 'text-blue-400';
+            const glassClass = isPrint ? 'border border-gray-300 p-4 rounded' : 'glass-panel p-6 rounded-xl';
+
+            if (data.type === 'intro') {
+                return `
+                    <div class="flex flex-col items-center text-center gap-6 max-w-4xl mx-auto">
+                        <span class="px-4 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-sm border border-blue-200">THÔNG BÁO MỚI</span>
+                        <h1 class="text-5xl md:text-6xl font-extrabold leading-tight ${textColor}">${data.title}</h1>
+                        <p class="text-2xl ${subTextColor}">${data.subtitle}</p>
+                        <div class="w-20 h-1.5 bg-blue-500 rounded-full my-2"></div>
+                        <p class="text-lg font-medium ${accentColor}">${data.highlight}</p>
+                        ${!isPrint ? `<img src="${data.image}" class="w-full max-w-lg rounded-xl shadow-2xl mt-4 border border-white/10" onerror="this.style.display='none'">` : ''}
+                        <p class="mt-4 font-mono text-sm ${subTextColor}">${data.date}</p>
+                    </div>
+                `;
+            } 
+            
+            if (data.type === 'feature') {
+                const listItems = data.items.map(i => `<li class="flex items-start gap-2 mb-2"><span class="material-symbols-outlined text-green-500 text-lg">check_circle</span><span>${i}</span></li>`).join('');
+                return `
+                    <div class="flex flex-col md:flex-row items-center gap-8 max-w-6xl mx-auto w-full">
+                        <div class="flex-1 order-2 md:order-1">
+                            <img src="${data.image}" class="w-full rounded-xl shadow-lg object-cover aspect-[4/3]" alt="img" onerror="this.src='https://placehold.co/600x400/1e293b/FFF?text=Image+Error'">
+                        </div>
+                        <div class="flex-1 order-1 md:order-2 text-left">
+                            <span class="font-bold tracking-widest text-xs uppercase ${accentColor} mb-2 block">${data.tag}</span>
+                            <h2 class="text-4xl font-bold mb-4 ${textColor}">${data.title}</h2>
+                            <p class="text-lg mb-6 ${subTextColor}">${data.description}</p>
+                            <div class="${glassClass}">
+                                <h3 class="font-bold mb-3 flex items-center gap-2 ${textColor}"><span class="material-symbols-outlined text-yellow-500">star</span> ${data.listTitle}</h3>
+                                <ul class="${subTextColor} text-sm md:text-base">${listItems}</ul>
+                            </div>
+                            <div class="mt-4 text-sm italic ${subTextColor} opacity-80 border-l-2 border-blue-500 pl-3">${data.note}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.type === 'summary') {
+                const cards = data.cards.map(c => `
+                    <div class="${glassClass} mb-4">
+                        <h3 class="font-bold text-lg mb-2 ${accentColor}">${c.title}</h3>
+                        <p class="text-sm ${subTextColor}">${c.text}</p>
+                    </div>
+                `).join('');
+                return `
+                    <div class="max-w-5xl mx-auto w-full text-center md:text-left">
+                        <div class="mb-8 text-center">
+                             <span class="font-bold tracking-widest text-xs uppercase ${accentColor}">${data.tag}</span>
+                             <h2 class="text-4xl font-bold mt-2 ${textColor}">${data.title}</h2>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div class="space-y-4 text-left">
+                                ${cards}
+                            </div>
+                            <div class="hidden md:block">
+                                 <img src="${data.image}" class="w-full rounded-xl shadow-lg transform rotate-3 hover:rotate-0 transition-all duration-500" alt="img" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSlide(index) {
+            const html = `<div class="w-full h-full flex items-center justify-center px-4 slide-enter">${getSlideHTML(slidesData[index])}</div>`;
+            container.innerHTML = html;
+            
+            // Update UI
+            document.getElementById('slide-counter').innerText = `${index + 1} / ${slidesData.length}`;
+            updateIndicators();
+        }
+
+        function updateIndicators() {
+            const ind = document.getElementById('indicators');
+            ind.innerHTML = slidesData.map((_, i) => `
+                <button onclick="goTo(${i})" class="h-1.5 rounded-full transition-all ${i === currentIndex ? 'w-8 bg-blue-500' : 'w-2 bg-white/30 hover:bg-white/50'}"></button>
+            `).join('');
+        }
+
+        function nextSlide(isAuto = false) {
+            if (currentIndex < slidesData.length - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop back to start
+            }
+            renderSlide(currentIndex);
+            if (!isAuto) resetAutoPlay(); // Reset timer if manually clicked
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = slidesData.length - 1; // Loop to end
+            }
+            renderSlide(currentIndex);
+            resetAutoPlay(); // Reset timer
+        }
+
+        function goTo(i) {
+            currentIndex = i;
+            renderSlide(currentIndex);
+            resetAutoPlay(); // Reset timer
+        }
+
+        // --- EXPORT FUNCTIONS ---
+
+        function downloadHTML() {
+            const docClone = document.documentElement.cloneNode(true);
+            // Remove the auto-play visual elements for the download version if desired, or keep them.
+            const htmlContent = "<!DOCTYPE html>\n" + docClone.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Bao_cao_phat_hanh_tuan_46.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function printToPDF() {
+            const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = ''; 
+
+            slidesData.forEach((slide, idx) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'print-page';
+                pageDiv.innerHTML = `
+                    <div class="text-xs text-gray-400 mb-4 text-right">Slide ${idx + 1}/${slidesData.length}</div>
+                    ${getSlideHTML(slide, true)}
+                `;
+                printContainer.appendChild(pageDiv);
+            });
+
+            window.print();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Initialize
+        renderSlide(0);
+        startAutoPlay(); // Start timer automatically on load
+        
+        // Keyboard Nav
+        document.addEventListener('keydown', (e) => {
+            if(e.key === "ArrowRight" || e.key === "Space") nextSlide();
+            if(e.key === "ArrowLeft") prevSlide();
+        });
+
+    </script>
+</body>
+</html>
