@@ -91,7 +91,7 @@
         <div class="flex items-center gap-2">
             <button onclick="toggleAutoPlay()" id="btn-autoplay" class="btn-tool text-green-400" title="Tạm dừng/Tiếp tục tự động chạy">
                 <span class="material-symbols-outlined text-lg" id="icon-autoplay">timer</span>
-                <span class="hidden md:inline text-xs" id="text-autoplay">10s</span>
+                <span class="hidden md:inline text-xs" id="text-autoplay">15s</span>
             </button>
             <div class="h-6 w-px bg-white/20 mx-1"></div>
             <button onclick="downloadHTML()" class="btn-tool" title="Tải file chạy offline">
@@ -139,9 +139,8 @@
         const slidesData = [
             {
                 type: 'intro',
-                title: "CẢI TIẾN CÔNG CỤ NỘI BỘ",
-                subtitle: "Báo cáo phát hành Tuần 46",
-                highlight: "Tập trung: Trải nghiệm Khách hàng & Tự động hóa",
+                title: "BẢN TIN PHÁT HÀNH TUẦN 46",
+                highlight: "Tiêu điểm: Trải nghiệm Khách Hàng & Tự động hóa",
                 date: "Hiệu lực: 24/11/2025",
                 image: "w46_1.png" // Placeholder for reliability
             },
@@ -192,7 +191,7 @@
         let autoPlayInterval;
         let progressInterval;
         let isAutoPlayActive = true;
-        const AUTO_PLAY_DURATION = 10000; // 10 seconds
+        const AUTO_PLAY_DURATION = 15000; // 10 seconds
         let timeElapsed = 0;
 
         function startAutoPlay() {
@@ -272,19 +271,18 @@
             const accentColor = isPrint ? 'text-blue-700' : 'text-blue-400';
             const glassClass = isPrint ? 'border border-gray-300 p-4 rounded' : 'glass-panel p-6 rounded-xl';
 
-            if (data.type === 'intro') {
-                return `
-                    <div class="flex flex-col items-center text-center gap-6 max-w-4xl mx-auto">
-                        <span class="px-4 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-sm border border-blue-200">THÔNG BÁO MỚI</span>
-                        <h1 class="text-5xl md:text-6xl font-extrabold leading-tight ${textColor}">${data.title}</h1>
-                        <p class="text-2xl ${subTextColor}">${data.subtitle}</p>
-                        <div class="w-20 h-1.5 bg-blue-500 rounded-full my-2"></div>
+           if (data.type === 'intro') {
+				const imageStyle = isPrint ? '' : 'max-h-[40vh] md:max-h-[50vh] object-contain';
+				return `
+					<div class="flex flex-col items-center text-center gap-4 md:gap-6 max-w-6xl mx-auto">
+                        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight ${textColor}">${data.title}</h1>
+                        <div class="w-20 h-1.5 bg-blue-500 rounded-full my-1 shrink-0"></div>
                         <p class="text-lg font-medium ${accentColor}">${data.highlight}</p>
-                        ${!isPrint ? `<img src="${data.image}" class="w-full max-w-lg rounded-xl shadow-2xl mt-4 border border-white/10" onerror="this.style.display='none'">` : ''}
-                        <p class="mt-4 font-mono text-sm ${subTextColor}">${data.date}</p>
+                        ${!isPrint ? `<img src="${data.image}" class="w-full max-w-lg rounded-xl shadow-2xl mt-2 md:mt-4 border border-white/10 ${imageStyle}" onerror="this.style.display='none'">` : ''}
+                        <p class="mt-4 font-mono text-sm ${subTextColor} shrink-0">${data.date}</p>
                     </div>
-                `;
-            } 
+				`;
+			}
             
             if (data.type === 'feature') {
                 const listItems = data.items.map(i => `<li class="flex items-start gap-2 mb-2"><span class="material-symbols-outlined text-green-500 text-lg">check_circle</span><span>${i}</span></li>`).join('');
